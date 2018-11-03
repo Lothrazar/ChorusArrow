@@ -1,0 +1,16 @@
+[
+{
+  "modid": "chorusarrow",
+  "name": "chorusarrow Mod",
+  "description": "chorusarrow placeholder mod.",
+  "version": "${version}",
+  "mcversion": "${mcversion}",
+  "url": "",
+  "updateUrl": "",
+  "authorList": ["Lothrazar"],
+  "credits": "The Forge and FML guys, for making this example",
+  "logoFile": "",
+  "screenshots": [],
+  "dependencies": []
+}
+]

@@ -1,8 +1,8 @@
 [
 {
   "modid": "chorusarrow",
-  "name": "chorusarrow Mod",
-  "description": "chorusarrow placeholder mod.",
+  "name": "Chorus-Arrow Mod",
+  "description": "Harvest Chorus fruit with your arrows.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",

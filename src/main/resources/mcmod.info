@@ -1,8 +1,8 @@
 [
 {
-  "modid": "chorusarrow",
-  "name": "Chorus-Arrow Mod",
-  "description": "Harvest Chorus fruit with your arrows.",
+  "modid": "arrowharvest",
+  "name": "Arrow HarvestMod",
+  "description": "Harvest Chorus fruit and more with your arrows.",
   "version": "${version}",
   "mcversion": "${mcversion}",
   "url": "",

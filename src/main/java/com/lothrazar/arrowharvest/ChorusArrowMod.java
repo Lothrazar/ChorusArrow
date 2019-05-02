@@ -1,4 +1,4 @@
-package com.lothrazar.chorusarrow;
+package com.lothrazar.arrowharvest;
 
 import org.apache.logging.log4j.Logger;
 import net.minecraft.block.Block;
@@ -19,7 +19,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 @Mod(modid = ChorusArrowMod.MODID, certificateFingerprint = "@FINGERPRINT@")
 public class ChorusArrowMod {
 
-  public static final String MODID = "chorusarrow";
+  public static final String MODID = "arrowharvest";
   private static Logger logger;
 
   @EventHandler
@@ -39,7 +39,8 @@ public class ChorusArrowMod {
       Block block = world.getBlockState(pos).getBlock();
       if (block == Blocks.CHORUS_FLOWER
           || block == Blocks.PUMPKIN
-          || block == Blocks.MELON_BLOCK) {
+          || block == Blocks.MELON_BLOCK
+          || block == Blocks.COCOA) {
         //do it. but true isnt dropping it so
         world.destroyBlock(pos, false);
         if (world.isRemote == false) {

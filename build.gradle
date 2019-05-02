@@ -12,8 +12,8 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 
 
 version = "1.0.0"
-group = "com.lothrazar.chorusarrow" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
-archivesBaseName = "chorusarrow"
+group = "com.lothrazar.arrowharvest" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
+archivesBaseName = "arrowharvest"
 
 sourceCompatibility = targetCompatibility = '1.8' // Need this here so eclipse task generates correctly.
 compileJava {

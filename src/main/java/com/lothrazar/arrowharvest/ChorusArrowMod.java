@@ -16,7 +16,7 @@ import net.minecraftforge.fml.common.event.FMLFingerprintViolationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
-@Mod(modid = ChorusArrowMod.MODID, certificateFingerprint = "@FINGERPRINT@")
+@Mod(modid = ChorusArrowMod.MODID, certificateFingerprint = "@FINGERPRINT@", updateJSON = "https://raw.githubusercontent.com/Lothrazar/ChorusArrow/master/update.json")
 public class ChorusArrowMod {
 
   public static final String MODID = "arrowharvest";

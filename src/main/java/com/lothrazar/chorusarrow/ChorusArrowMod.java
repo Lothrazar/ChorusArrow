@@ -1,6 +1,7 @@
 package com.lothrazar.chorusarrow;
 
 import org.apache.logging.log4j.Logger;
+import net.minecraft.block.Block;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.init.Blocks;
@@ -26,20 +27,28 @@ public class ChorusArrowMod {
     logger = event.getModLog();
     MinecraftForge.EVENT_BUS.register(this);
   }
+  // minecraft:chorus_flower  
+  // minecraft:pumpkin
+  // minecraft:melon_block  
 
   @SubscribeEvent
   public void onProjectileImpactEvent(ProjectileImpactEvent event) {
     if (event.getRayTraceResult() != null && event.getEntity() instanceof EntityArrow) {
       BlockPos pos = event.getRayTraceResult().getBlockPos();
       World world = event.getEntity().world;
-      if (world.getBlockState(pos).getBlock() == Blocks.CHORUS_FLOWER) {
+      Block block = world.getBlockState(pos).getBlock();
+      if (block == Blocks.CHORUS_FLOWER
+          || block == Blocks.PUMPKIN
+          || block == Blocks.MELON_BLOCK) {
         //do it. but true isnt dropping it so
         world.destroyBlock(pos, false);
-        if (world.isRemote == false)
-          world.spawnEntity(new EntityItem(
+        if (world.isRemote == false) {
+          EntityItem entityIn = new EntityItem(
               world,
               pos.getX(), pos.getY(), pos.getZ(),
-              new ItemStack(Blocks.CHORUS_FLOWER)));
+              new ItemStack(block));
+          world.spawnEntity(entityIn);
+        }
       }
     }
   }

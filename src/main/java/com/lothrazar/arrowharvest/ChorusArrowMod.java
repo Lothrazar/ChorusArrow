@@ -33,9 +33,13 @@ public class ChorusArrowMod {
 
   @SubscribeEvent
   public void onProjectileImpactEvent(ProjectileImpactEvent event) {
-    if (event.getRayTraceResult() != null && event.getEntity() instanceof EntityArrow) {
+    if (event.getRayTraceResult() != null && event.getEntity() != null
+        && event.getEntity() instanceof EntityArrow) {
       BlockPos pos = event.getRayTraceResult().getBlockPos();
       World world = event.getEntity().world;
+      if (pos == null || world == null || world.getBlockState(pos) == null) {
+        return;
+      }
       Block block = world.getBlockState(pos).getBlock();
       if (block == Blocks.CHORUS_FLOWER
           || block == Blocks.PUMPKIN

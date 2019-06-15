@@ -26,23 +26,25 @@ public class ChorusArrowMod {
   public static Logger logger;
   private Configuration config;
   private List<String> willDropAsBlock;
+  private List<String> willDestroyBlock;
 
   @EventHandler
   public void preInit(FMLPreInitializationEvent event) {
     logger = event.getModLog();
+    MinecraftForge.EVENT_BUS.register(this);
     config = new Configuration(event.getSuggestedConfigurationFile());
     config.load();
     String category = MODID;
-    String[] harvestme = config.getStringList("willDropAsBlock", category, new String[] {
+    willDestroyBlock = Arrays.asList(config.getStringList("willDestroyBlock", category, new String[] {
+        "minecraft:cocoa"
+    }, "Destroy these like a tool"));
+    willDropAsBlock = Arrays.asList(config.getStringList("willDropAsBlock", category, new String[] {
         "minecraft:chorus_flower",
         "minecraft:pumpkin",
         "minecraft:melon_block",
-        "minecraft:cocoa",
         "minecraft:web",
-    }, "Harvest these");
-    willDropAsBlock = Arrays.asList(harvestme);
+    }, "Drop these as an itemstack"));
     config.save();
-    MinecraftForge.EVENT_BUS.register(this);
   }
 
   public static ItemStack getMetadataDrop(IBlockState state) {
@@ -60,19 +62,23 @@ public class ChorusArrowMod {
         && event.getEntity() instanceof EntityArrow) {
       BlockPos pos = event.getRayTraceResult().getBlockPos();
       World world = event.getEntity().world;
-      IBlockState blockState = world.getBlockState(pos);
-      if (pos == null || world == null || blockState == null) {
+      if (pos == null || world == null) {
         return;
-      }
+      } 
+      IBlockState blockState = world.getBlockState(pos);
       if (UtilString.isInList(willDropAsBlock, blockState.getBlock().getRegistryName())) {
-        if (world.destroyBlock(pos, false)
-            && world.isRemote == false) {
-          //        logger.info(block.getRegistryName() + " HARVEST");
+            if( world.isRemote == false) {
+          logger.info(blockState + "  willDropAsBlock");
           world.spawnEntity(new EntityItem(
               world,
               pos.getX(), pos.getY(), pos.getZ(),
               getMetadataDrop(blockState)));
         }
+      }
+      else if(UtilString.isInList(willDestroyBlock, blockState.getBlock().getRegistryName())){
+        logger.info(blockState + "  DESTROY ");
+
+        world.destroyBlock(pos, true);
       }
     }
   }

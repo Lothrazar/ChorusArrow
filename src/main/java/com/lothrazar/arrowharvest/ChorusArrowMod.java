@@ -64,20 +64,20 @@ public class ChorusArrowMod {
       World world = event.getEntity().world;
       if (pos == null || world == null) {
         return;
-      } 
+      }
       IBlockState blockState = world.getBlockState(pos);
       if (UtilString.isInList(willDropAsBlock, blockState.getBlock().getRegistryName())) {
-            if( world.isRemote == false) {
-          logger.info(blockState + "  willDropAsBlock");
+        //  logger.info(blockState + "  willDropAsBlock");
+        if (world.isRemote == false) {
           world.spawnEntity(new EntityItem(
               world,
               pos.getX(), pos.getY(), pos.getZ(),
               getMetadataDrop(blockState)));
         }
+        world.destroyBlock(pos, false);
       }
-      else if(UtilString.isInList(willDestroyBlock, blockState.getBlock().getRegistryName())){
-        logger.info(blockState + "  DESTROY ");
-
+      else if (UtilString.isInList(willDestroyBlock, blockState.getBlock().getRegistryName())) {
+        //logger.info(blockState + "  DESTROY ");
         world.destroyBlock(pos, true);
       }
     }

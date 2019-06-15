@@ -1,14 +1,17 @@
 package com.lothrazar.arrowharvest;
 
+import java.util.Arrays;
+import java.util.List;
 import org.apache.logging.log4j.Logger;
-import net.minecraft.block.Block;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.projectile.EntityArrow;
-import net.minecraft.init.Blocks;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.event.entity.ProjectileImpactEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.Mod.EventHandler;
@@ -20,39 +23,55 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 public class ChorusArrowMod {
 
   public static final String MODID = "arrowharvest";
-  private static Logger logger;
+  public static Logger logger;
+  private Configuration config;
+  private List<String> willDropAsBlock;
 
   @EventHandler
   public void preInit(FMLPreInitializationEvent event) {
     logger = event.getModLog();
+    config = new Configuration(event.getSuggestedConfigurationFile());
+    config.load();
+    String category = MODID;
+    String[] harvestme = config.getStringList("willDropAsBlock", category, new String[] {
+        "minecraft:chorus_flower",
+        "minecraft:pumpkin",
+        "minecraft:melon_block",
+        "minecraft:cocoa",
+        "minecraft:web",
+    }, "Harvest these");
+    willDropAsBlock = Arrays.asList(harvestme);
+    config.save();
     MinecraftForge.EVENT_BUS.register(this);
   }
-  // minecraft:chorus_flower  
-  // minecraft:pumpkin
-  // minecraft:melon_block  
+
+  public static ItemStack getMetadataDrop(IBlockState state) {
+    Item item = Item.getItemFromBlock(state.getBlock());
+    int meta = 0;
+    if (item.getHasSubtypes()) {
+      meta = state.getBlock().getMetaFromState(state);
+    }
+    return new ItemStack(item, 1, meta);
+  }
 
   @SubscribeEvent
   public void onProjectileImpactEvent(ProjectileImpactEvent event) {
-    if (event.getRayTraceResult() != null && event.getEntity() != null
+    if (event.getRayTraceResult() != null
         && event.getEntity() instanceof EntityArrow) {
       BlockPos pos = event.getRayTraceResult().getBlockPos();
       World world = event.getEntity().world;
-      if (pos == null || world == null || world.getBlockState(pos) == null) {
+      IBlockState blockState = world.getBlockState(pos);
+      if (pos == null || world == null || blockState == null) {
         return;
       }
-      Block block = world.getBlockState(pos).getBlock();
-      if (block == Blocks.CHORUS_FLOWER
-          || block == Blocks.PUMPKIN
-          || block == Blocks.MELON_BLOCK
-          || block == Blocks.COCOA) {
-        //do it. but true isnt dropping it so
-        world.destroyBlock(pos, false);
-        if (world.isRemote == false) {
-          EntityItem entityIn = new EntityItem(
+      if (UtilString.isInList(willDropAsBlock, blockState.getBlock().getRegistryName())) {
+        if (world.destroyBlock(pos, false)
+            && world.isRemote == false) {
+          //        logger.info(block.getRegistryName() + " HARVEST");
+          world.spawnEntity(new EntityItem(
               world,
               pos.getX(), pos.getY(), pos.getZ(),
-              new ItemStack(block));
-          world.spawnEntity(entityIn);
+              getMetadataDrop(blockState)));
         }
       }
     }

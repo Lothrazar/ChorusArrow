@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 import org.apache.logging.log4j.Logger;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.projectile.EntityArrow;
 import net.minecraft.item.Item;
@@ -61,13 +62,14 @@ public class ChorusArrowMod {
     if (event.getRayTraceResult() != null
         && event.getEntity() instanceof EntityArrow) {
       BlockPos pos = event.getRayTraceResult().getBlockPos();
-      World world = event.getEntity().world;
+      Entity arrow = event.getEntity();
+      World world = arrow.world;
       if (pos == null || world == null) {
         return;
       }
       IBlockState blockState = world.getBlockState(pos);
       if (UtilString.isInList(willDropAsBlock, blockState.getBlock().getRegistryName())) {
-        //  logger.info(blockState + "  willDropAsBlock");
+        // logger.info(blockState + "  willDropAsBlock");
         if (world.isRemote == false) {
           world.spawnEntity(new EntityItem(
               world,
@@ -75,10 +77,12 @@ public class ChorusArrowMod {
               getMetadataDrop(blockState)));
         }
         world.destroyBlock(pos, false);
+        world.removeEntity(arrow);
       }
       else if (UtilString.isInList(willDestroyBlock, blockState.getBlock().getRegistryName())) {
-        //logger.info(blockState + "  DESTROY ");
+        //   logger.info(blockState + "  DESTROY ");
         world.destroyBlock(pos, true);
+        world.removeEntity(arrow);
       }
     }
   }

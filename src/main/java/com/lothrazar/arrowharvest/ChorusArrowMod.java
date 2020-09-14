@@ -68,7 +68,7 @@ public class ChorusArrowMod {
         return;
       }
       IBlockState blockState = world.getBlockState(pos);
-      if (UtilString.isInList(willDropAsBlock, blockState.getBlock().getRegistryName())) {
+      if (UtilString.isInList(willDropAsBlock, blockState)) {
         // logger.info(blockState + "  willDropAsBlock");
         if (world.isRemote == false) {
           world.spawnEntity(new EntityItem(
@@ -79,7 +79,7 @@ public class ChorusArrowMod {
         world.destroyBlock(pos, false);
         world.removeEntity(arrow);
       }
-      else if (UtilString.isInList(willDestroyBlock, blockState.getBlock().getRegistryName())) {
+      else if (UtilString.isInList(willDestroyBlock, blockState)) {
         //   logger.info(blockState + "  DESTROY ");
         world.destroyBlock(pos, true);
         world.removeEntity(arrow);

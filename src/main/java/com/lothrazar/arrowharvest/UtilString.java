@@ -24,6 +24,8 @@
 package com.lothrazar.arrowharvest;
 
 import java.util.List;
+import java.util.regex.Pattern;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.util.ResourceLocation;
 
 public class UtilString {
@@ -36,34 +38,121 @@ public class UtilString {
   /**
    * If the list has "hc:*_sapling" and input is "hc:whatever_sapling" then match is true
    * 
-   * @param list
-   * @param toMatch
-   * @return
+   * @param list list of config values
+   * @param toMatch the resource location to match
+   * @deprecated
+   * @return whether the resloc is in the list
    */
   public static boolean isInList(final List<String> list, ResourceLocation toMatch) {
     if (toMatch == null || list == null) {
       return false;
     }
+    out:
     for (String strFromList : list) {
       if (strFromList == null || strFromList.isEmpty()) {
-        continue;//just ignore me
+        continue out; // just ignore me
       }
 
+      String[] blockIdArray = strFromList.split(":");
+      
+      // Invalid
+      if (blockIdArray.length < 2) {
+        ChorusArrowMod.logger.error("Invalid config value for block: " + strFromList);
+        continue out;
+      }
+      
+      // Mod ID checking
+      String modIdFromList = blockIdArray[0];
+      String modIdToMatch = toMatch.getResourceDomain();
+      if (modIdFromList.equals(modIdToMatch) == false) {
+        continue out;
+      }
+      
+      // ID
+      String blockIdFromList = blockIdArray[1]; // has the wildcard id
+      String blockIdToMatch = toMatch.getResourcePath();
+      
+      // Wildcard check
       if (matchWildcard) {
-        String[] blockIdArray = strFromList.split(":");
-        if (blockIdArray.length <= 1) {
-          ChorusArrowMod.logger.error("Invalid config value for block : " + strFromList);
-          return false;
+        String blockIdListWCRegex = blockIdFromList.replace("*", ".*");
+        if (Pattern.matches(blockIdListWCRegex, blockIdToMatch) == false) {
+          continue out;
         }
-        String modIdFromList = blockIdArray[0];
-        String blockIdFromList = blockIdArray[1];//has the *
-        String modIdToMatch = toMatch.getResourceDomain();
-        String blockIdToMatch = toMatch.getResourcePath();
-        if (modIdFromList.equals(modIdToMatch) == false) {
-          continue;
+        return true;
+      } 
+      
+      // Face value id check
+      else {
+        if (blockIdFromList.equals(blockIdToMatch)) {
+          return true;
         }
-        String blockIdListWC = blockIdFromList.replace("*", "");
-        if (blockIdToMatch.contains(blockIdListWC)) {
+      }
+    }
+    return false;
+  }
+  
+  /**
+   * If the list has "hc:*_sapling:3" and input is "hc:whatever_sapling:3" then match is true
+   * 
+   * @param list list of config values
+   * @param blockState the block state to match
+   * @return whether the blockstate is in the list
+   */
+  public static boolean isInList(final List<String> list, IBlockState blockState) {
+    ResourceLocation toMatch = blockState.getBlock().getRegistryName();
+    
+    if (toMatch == null || list == null) {
+      return false;
+    }
+    
+    out:
+    for (String strFromList : list) {
+      if (strFromList == null || strFromList.isEmpty()) {
+        continue out; // just ignore me
+      }
+
+      String[] blockIdArray = strFromList.split(":");
+      
+      // Invalid
+      if (blockIdArray.length < 2) {
+        ChorusArrowMod.logger.error("Invalid config value for block: " + strFromList);
+        continue out;
+      }
+      
+      // Mod ID checking
+      String modIdFromList = blockIdArray[0];
+      String modIdToMatch = toMatch.getResourceDomain();
+      if (modIdFromList.equals(modIdToMatch) == false) {
+        continue out;
+      }
+      
+      // ID w/o meta (wildcard meta falls under here)
+      String blockIdFromList = blockIdArray[1]; // has the wildcard id
+      String blockIdToMatch = toMatch.getResourcePath();
+      
+      // ID w/meta (meta check)
+      if (blockIdArray.length == 3 && "*".equals(blockIdArray[2]) == false) {
+        try {
+          int blockMeta = Integer.parseInt(blockIdArray[2]);
+          if (blockMeta != blockState.getBlock().getMetaFromState(blockState)) {
+            continue out;
+          }
+        } catch (NumberFormatException e) {
+          ChorusArrowMod.logger.error("Invalid meta value for block: " + strFromList);
+        }
+      }
+      
+      // Wildcard check
+      if (matchWildcard) {
+        String blockIdListWCRegex = blockIdFromList.replace("*", ".*");
+        if (Pattern.matches(blockIdListWCRegex, blockIdToMatch)) {
+          return true;
+        }
+      } 
+      
+      // Face value id check
+      else {
+        if (blockIdFromList.equals(blockIdToMatch)) {
           return true;
         }
       }
